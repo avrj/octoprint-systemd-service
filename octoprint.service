@@ -1,0 +1,16 @@
+# /etc/systemd/system/octoprint.service
+
+[Unit]
+Description=Octoprint container
+After=docker.service
+Wants=network-online.target docker.socket
+Requires=docker.socket
+
+[Service]
+Restart=always
+ExecStartPre=/bin/bash -c "/usr/bin/docker container inspect octoprint 2> /dev/null || /usr/bin/docker run -d --name octoprint -p 80:80 -v /root/octoprint:/data -e MJPEG_STREAMER_AUTOSTART=false --device /dev/ttyACM1:/dev/ttyACM1 nunofgs/octoprint"
+ExecStart=/usr/bin/docker start -a octoprint
+ExecStop=/usr/bin/docker stop -t 10 octoprint
+
+[Install]
+WantedBy=multi-user.target
